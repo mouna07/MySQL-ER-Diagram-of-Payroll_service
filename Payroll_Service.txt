@@ -1,0 +1,536 @@
+/* Welcome to the payroll service */
+
+ show databases;  					# show databases at start
+
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| performance_schema |
+| sakila             |
+| sample             |
+| sys                |
+| world              |
++--------------------+
+
+#1 UC1 Create Database
+
+mysql> CREATE DATABASE payroll_service;          	# create database
+
+
+mysql> show databases; 					 # show database 
+
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| mysql              |
+| payroll_service    |
+| performance_schema |
+| sakila             |
+| sample             |
+| sys                |
+| world              |
++--------------------+
+
+
+mysql> use payroll_service;				# use database
+Database changed			
+
+mysql> select database();
++-----------------+
+| database()      |
++-----------------+
+| payroll_service |
++-----------------+
+
+# UC2 Create table 
+
+mysql> create table employee_payroll
+    -> (
+    -> id       INT unsigned not null AUTO_INCREMENT,   # uniqueid for record
+    -> name     varchar(150) not null,			# name of the employee
+    -> salary   double not null,			# Employee Salary
+    -> start    date not null,				# Employee Start Date
+    -> primary  key (id)				# make id primary key
+    -> );
+
+mysql> desc employee_payroll; 				# describe table
+
++--------+--------------+------+-----+---------+----------------+
+| Field  | Type         | Null | Key | Default | Extra          |
++--------+--------------+------+-----+---------+----------------+
+| id     | int unsigned | NO   | PRI | NULL    | auto_increment |
+| name   | varchar(150) | NO   |     | NULL    |                |
+| salary | double       | NO   |     | NULL    |                |
+| start  | date         | NO   |     | NULL    |                |
++--------+--------------+------+-----+---------+----------------+
+
+# UC3 Insert Data in table
+
+mysql> insert into employee_payroll (name, salary, start) values	# insert operation
+    -> ('Mark', 1000000.00, '2020-05-18'),
+    -> ('Jeff', 2000000.00, '2020-05-25'),
+    -> ('Bill', 6000000.00, '2020-05-29'),
+    -> ('Melissa', 800000.00, '2020-05-09'),
+    -> ('Sunita', 100000.00, '2020-05-23');
+
+# UC4 Retrieve Employee Payroll Data
+
+mysql> select * from employee_payroll; 			# retrieve all employee payroll data
++----+---------+---------+------------+
+| id | name    | salary  | start      |
++----+---------+---------+------------+
+|  1 | Mark    | 1000000 | 2020-05-18 |
+|  2 | Jeff    | 2000000 | 2020-05-25 |
+|  3 | Bill    | 6000000 | 2020-05-29 |
+|  4 | Melissa |  800000 | 2020-05-09 |
+|  5 | Sunita  |  100000 | 2020-05-23 |
++----+---------+---------+------------+
+
+# UC5 Retrieve Salary by name
+
+mysql> select salary from employee_payroll where name = 'Jeff';		# selecting Jeff entry
++---------+
+| salary  |
++---------+
+| 2000000 |
++---------+
+
+mysql> select * from employee_payroll where start between cast('2020-05-20' as d
+ate) and date(now());
++----+--------+---------+------------+
+| id | name   | salary  | start      |
++----+--------+---------+------------+
+|  2 | Jeff   | 2000000 | 2020-05-25 |
+|  3 | Bill   | 6000000 | 2020-05-29 |
+|  5 | Sunita |  100000 | 2020-05-23 |
++----+--------+---------+------------+
+
+
+mysql> alter table employee_payroll add gender char(1) after name;      # adding gender field
+
+
+mysql> update employee_payroll
+    -> set gender = 'M'
+    -> where name = 'Jeff' or name = 'Mark' or name = 'Bill';
+
+
+mysql> desc employee_payroll;
++--------+--------------+------+-----+---------+----------------+
+| Field  | Type         | Null | Key | Default | Extra          |
++--------+--------------+------+-----+---------+----------------+
+| id     | int unsigned | NO   | PRI | NULL    | auto_increment |
+| name   | varchar(150) | NO   |     | NULL    |                |
+| gender | char(1)      | YES  |     | NULL    |                |
+| salary | double       | NO   |     | NULL    |                |
+| start  | date         | NO   |     | NULL    |                |
++--------+--------------+------+-----+---------+----------------+
+
+mysql> select * from employee_payroll;
++----+---------+--------+---------+------------+
+| id | name    | gender | salary  | start      |
++----+---------+--------+---------+------------+
+|  1 | Mark    | M      | 1000000 | 2020-05-18 |
+|  2 | Jeff    | M      | 2000000 | 2020-05-25 |
+|  3 | Bill    | M      | 6000000 | 2020-05-29 |
+|  4 | Melissa | NULL   |  800000 | 2020-05-09 |
+|  5 | Sunita  | NULL   |  100000 | 2020-05-23 |
++----+---------+--------+---------+------------+
+5 rows in set (0.00 sec)
+
+# UC6 Update gender of the employee in Payroll table 
+mysql> update employee_payroll
+    -> set gender = 'F'
+    -> where name = 'Melissa' or
+    -> name ='Sunita';
+
+mysql> select * from employee_payroll;
++----+---------+--------+---------+------------+
+| id | name    | gender | salary  | start      |
++----+---------+--------+---------+------------+
+|  1 | Mark    | M      | 1000000 | 2020-05-18 |
+|  2 | Jeff    | M      | 2000000 | 2020-05-25 |
+|  3 | Bill    | M      | 6000000 | 2020-05-29 |
+|  4 | Melissa | F      |  800000 | 2020-05-09 |
+|  5 | Sunita  | F      |  100000 | 2020-05-23 |
++----+---------+--------+---------+------------+
+
+# UC7 Find sum average min max 
+
+mysql> select gender,sum(salary) from employee_payroll where gender = 'F' group
+by gender;
++--------+-------------+
+| gender | sum(salary) |
++--------+-------------+
+| F      |      900000 |
++--------+-------------+
+
+
+mysql> select gender,sum(salary) from employee_payroll where gender = 'M' group
+by gender;
++--------+-------------+
+| gender | sum(salary) |
++--------+-------------+
+| M      |     9000000 |
++--------+-------------+
+
+
+mysql> select name,gender,max(salary) from employee_payroll where gender = 'F' 
+group by gender;
++---------+--------+-------------+
+| name    | gender | max(salary) |
++---------+--------+-------------+
+| Melissa | F      |      800000 |
++---------+--------+-------------+
+
+
+mysql> select name,gender,max(salary) from employee_payroll where gender = 'M' 
+group by gender;
++------+--------+-------------+
+| name | gender | max(salary) |
++------+--------+-------------+
+| Mark | M      |     6000000 |
++------+--------+-------------+
+
+
+mysql> select name,gender,avg(salary) from employee_payroll where gender = 'M' 
+group by gender;
++------+--------+-------------+
+| name | gender | avg(salary) |
++------+--------+-------------+
+| Mark | M      |     3000000 |
++------+--------+-------------+
+
+
+mysql> select name,gender,avg(salary) from employee_payroll where gender = 'F' 
+group by gender;
++---------+--------+-------------+
+| name    | gender | avg(salary) |
++---------+--------+-------------+
+| Melissa | F      |      450000 |
++---------+--------+-------------+
+
+
+mysql> select name,gender,count(salary) from employee_payroll where gender = 'F'
+ group by gender;
++---------+--------+---------------+
+| name    | gender | count(salary) |
++---------+--------+---------------+
+| Melissa | F      |             2 |
++---------+--------+---------------+
+
+
+mysql> select name,gender,count(salary) from employee_payroll where gender = 'M'
+ group by gender;
++------+--------+---------------+
+| name | gender | count(salary) |
++------+--------+---------------+
+| Mark | M      |             3 |
++------+--------+---------------+
+
+
+mysql> select name,gender,min(salary) from employee_payroll where gender = 'F' 
+group by gender;
++---------+--------+-------------+
+| name    | gender | min(salary) |
++---------+--------+-------------+
+| Melissa | F      |      100000 |
++---------+--------+-------------+
+
+
+mysql> select name,gender,min(salary) from employee_payroll where gender = 'M' 
+group by gender;
++------+--------+-------------+
+| name | gender | min(salary) |
++------+--------+-------------+
+| Mark | M      |     1000000 |
++------+--------+-------------+
+
+
+# UC8 Extended Employee Payroll Data to Store employee information phone department and address
+
+mysql> alter table employee_payroll add phonenumber varchar(15) after name;
+
+mysql> select * from employee_payroll;
++----+---------+-------------+--------+---------+------------+
+| id | name    | phonenumber | gender | salary  | start      |
++----+---------+-------------+--------+---------+------------+
+|  1 | Mark    | NULL        | M      | 1000000 | 2020-05-18 |
+|  2 | Jeff    | NULL        | M      | 2000000 | 2020-05-25 |
+|  3 | Bill    | NULL        | M      | 6000000 | 2020-05-29 |
+|  4 | Melissa | NULL        | F      |  800000 | 2020-05-09 |
+|  5 | Sunita  | NULL        | F      |  100000 | 2020-05-23 |
++----+---------+-------------+--------+---------+------------+
+
+mysql> alter table employee_payroll add address varchar(250) after phonenumber;
+
+mysql> select * from employee_payroll;
++----+---------+-------------+---------+--------+---------+------------+
+| id | name    | phonenumber | address | gender | salary  | start      |
++----+---------+-------------+---------+--------+---------+------------+
+|  1 | Mark    | NULL        | NULL    | M      | 1000000 | 2020-05-18 |
+|  2 | Jeff    | NULL        | NULL    | M      | 2000000 | 2020-05-25 |
+|  3 | Bill    | NULL        | NULL    | M      | 6000000 | 2020-05-29 |
+|  4 | Melissa | NULL        | NULL    | F      |  800000 | 2020-05-09 |
+|  5 | Sunita  | NULL        | NULL    | F      |  100000 | 2020-05-23 |
++----+---------+-------------+---------+--------+---------+------------+
+
+mysql> alter table employee_payroll add department varchar(150) not null after address ;
+
+mysql> select * from employee_payroll;
++----+---------+-------------+---------+------------+--------+---------+------------+
+| id | name    | phonenumber | address | department | gender | salary  | start      |
++----+---------+-------------+---------+------------+--------+---------+------------+
+|  1 | Mark    | NULL        | NULL    |            | M      | 1000000 | 2020-05-18 |
+|  2 | Jeff    | NULL        | NULL    |            | M      | 2000000 | 2020-05-25 |
+|  3 | Bill    | NULL        | NULL    |            | M      | 6000000 | 2020-05-29 |
+|  4 | Melissa | NULL        | NULL    |            | F      |  800000 | 2020-05-09 |
+|  5 | Sunita  | NULL        | NULL    |            | F      |  100000 | 2020-05-23 |
++----+---------+-------------+---------+------------+--------+---------+------------+
+
+mysql> alter table employee_payroll alter address set default 'TBD';
+
+mysql> select * from employee_payroll;
++----+---------+-------------+---------+------------+--------+---------+------------+
+| id | name    | phonenumber | address | department | gender | salary  | start	    |
++----+---------+-------------+---------+------------+--------+---------+------------+
+|  1 | Mark    | NULL        | NULL    |            | M      | 1000000 | 2020-05-18 |
+|  2 | Jeff    | NULL        | NULL    |            | M      | 2000000 | 2020-05-25 |
+|  3 | Bill    | NULL        | NULL    |            | M      | 6000000 | 2020-05-29 |
+|  4 | Melissa | NULL        | NULL    |            | F      |  800000 | 2020-05-09 |
+|  5 | Sunita  | NULL        | NULL    |            | F      |  100000 | 2020-05-23 |
++----+---------+-------------+---------+------------+--------+---------+------------+
+
+mysql> desc employee_payroll;
++-------------+--------------+------+-----+---------+----------------+
+| Field       | Type         | Null | Key | Default | Extra          |
++-------------+--------------+------+-----+---------+----------------+
+| id          | int unsigned | NO   | PRI | NULL    | auto_increment |
+| name        | varchar(150) | NO   |     | NULL    |                |
+| phonenumber | varchar(15)  | YES  |     | NULL    |                |
+| address     | varchar(250) | YES  |     | TBD     |                |
+| department  | varchar(150) | NO   |     | NULL    |                |
+| gender      | char(1)      | YES  |     | NULL    |                |
+| salary      | double       | NO   |     | NULL    |                |
+| start       | date         | NO   |     | NULL    |                |
++-------------+--------------+------+-----+---------+----------------+
+
+# UC9 Extended Employee Payroll table to add Basicpay, deductions, Taxable Pay, Income, Tax and Net Pay
+
+mysql> insert into employee_payroll(name, salary, start, department) values ('Mayur', '100000','2020-09-18','Electrical');
+
+mysql> select * from employee_payroll;
++----+---------+-------------+---------+------------+--------+---------+------------+
+| id | name    | phonenumber | address | department | gender | salary  | start      |
++----+---------+-------------+---------+------------+--------+---------+------------+
+|  1 | Mark    | NULL        | NULL    |            | M      | 1000000 | 2020-05-18 |
+|  2 | Jeff    | NULL        | NULL    |            | M      | 2000000 | 2020-05-25 |
+|  3 | Bill    | NULL        | NULL    |            | M      | 6000000 | 2020-05-29 |
+|  4 | Melissa | NULL        | NULL    |            | F      |  800000 | 2020-05-09 |
+|  5 | Sunita  | NULL        | NULL    |            | F      |  100000 | 2020-05-23 |
+|  6 | Mayur   | NULL        | TBD     | Electrical | NULL   |  100000 | 2020-09-18 |
++----+---------+-------------+---------+------------+--------+---------+------------+
+
+mysql> alter table employee_payroll rename column salary to basic_pay;
+
+mysql> alter table employee_payroll add deductions double not null after basic_pay;
+
+mysql> alter table employee_payroll add taxable_pay double not null after deductions;
+
+mysql> alter table employee_payroll add tax double not null after taxable_pay;
+
+mysql> alter table employee_payroll add net_pay double not null after tax;
+
+mysql> update employee_payroll set department='Sales' where name='Melissa';
+
+mysql> select * from employee_payroll;
++----+---------+-------------+---------+------------+--------+-----------+------------+-------------+-----+---------+------------+
+| id | name    | phonenumber | address | department | gender | basic_pay | deductions | taxable_pay | tax | net_pay | start      |
++----+---------+-------------+---------+------------+--------+-----------+------------+-------------+-----+---------+------------+
+|  1 | Mark    | NULL        | NULL    |            | M      |   1000000 |    	    0 |           0 |   0 |       0 | 2020-05-18 |
+|  2 | Jeff    | NULL        | NULL    |            | M      |   2000000 |          0 |           0 |   0 |       0 | 2020-05-25 |
+|  3 | Bill    | NULL        | NULL    |            | M      |   6000000 |          0 |           0 |   0 |       0 | 2020-05-29 |
+|  4 | Melissa | NULL        | NULL    | Sales      | F      |    800000 |          0 |           0 |   0 |       0 | 2020-05-09 |
+|  5 | Sunita  | NULL        | NULL    |            | F      |    100000 |          0 |           0 |   0 |       0 | 2020-05-23 |
+|  6 | Mayur   | NULL        | TBD     | Electrical | NULL   |    100000 |          0 |           0 |   0 |       0 | 2020-09-18 |
++----+---------+-------------+---------+------------+--------+-----------+------------+-------------+-----+---------+------------+
+
+# UC 10 Sunita as a part of Sales and Marketting Department
+
+mysql> update employee_payroll set department = 'sales' where start ='2020-05-23';
+
+mysql> insert into employee_payroll (name,department,gender,basic_pay, deductions, taxable_pay, tax, net_pay, start) values
+    -> ('Sunita','Marketting', 'F', 3000000.00, 1000000.00, 2000000.00,500000.00,150000.00,'2020-05-28');
+
+mysql> select * from employee_payroll;
++----+---------+-------------+---------+------------+--------+-----------+------------+-------------+--------+---------+------------+
+| id | name    | phonenumber | address | department | gender | basic_pay | deductions | taxable_pay | tax    | net_pay | start      |
++----+---------+-------------+---------+------------+--------+-----------+------------+-------------+--------+---------+------------+
+|  1 | Mark    | NULL        | NULL    |            | M      |   1000000 |   	    0 |           0 |      0 |       0 | 2020-05-18 |
+|  2 | Jeff    | NULL        | NULL    |            | M      |   2000000 |    	    0 |           0 |      0 |       0 | 2020-05-25 |
+|  3 | Bill    | NULL        | NULL    |            | M      |   6000000 |    	    0 |           0 |      0 |       0 | 2020-05-29 |
+|  4 | Melissa | NULL        | NULL    | Sales      | F      |    800000 |          0 |           0 |      0 |       0 | 2020-05-09 |
+|  5 | Sunita  | NULL        | NULL    | sales      | F      |    100000 |    	    0 |           0 |      0 |       0 | 2020-05-23 |
+|  6 | Mayur   | NULL        | TBD     | Electrical | NULL   |    100000 |  	    0 |           0 |      0 |       0 | 2020-09-18 |
+|  7 | Sunita  | NULL        | TBD     | Marketting | F      |   3000000 |    1000000 |     2000000 | 500000 |  150000 | 2020-05-28 |
++----+---------+-------------+---------+------------+--------+-----------+------------+-------------+--------+---------+------------+
+
+mysql> select * from employee_payroll where name = 'Sunita';
++----+--------+-------------+---------+------------+--------+-----------+------------+-------------+--------+---------+------------+
+| id | name   | phonenumber | address | department | gender | basic_pay | deductions | taxable_pay | tax    | net_pay | start      |
++----+--------+-------------+---------+------------+--------+-----------+------------+-------------+--------+---------+------------+
+|  5 | Sunita | NULL        | NULL    | sales      | F      |    100000 |   0 |           0 |      0 |       0 | 2020-05-23 |
+|  7 | Sunita | NULL        | TBD     | Marketting | F      |   3000000 |    1000000 |     2000000 | 500000 |  150000 | 2020-05-28 |
++----+--------+-------------+---------+------------+--------+-----------+------------+-------------+--------+---------+------------+
+
+
+UC11 ER Diagram 
+
+
+mysql> show databases;
++---------------------+
+| Database            |
++---------------------+
+| addressbooksystemdb |
+| information_schema  |
+| mysql               |
+| payroll_service     |
+| payrollservicedb    |
+| performance_schema  |
+| sakila              |
+| sample              |
+| sys                 |
+| world               |
++---------------------+
+
+# UC 11 Implement ER Diagram in Payrol Service DB
+
+mysql> create database payrollservice;
+mysql> use payrollservice;
+Database changed
+mysql> create table company (
+    -> company_id int NOT NULL PRIMARY KEY,
+    -> company_name VARCHAR(250) NOT NULL);
+
+mysql> create table employee_details(
+    -> emp_id int unsigned NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    -> name VARCHAR(50) NOT NULL,
+    -> company_id int,
+    -> phone_number VARCHAR(50) NOT NULL,
+    -> address VARCHAR(250) NOT NULL,
+    -> gender CHAR(1),
+    -> start DATE NOT NULL,
+    -> FOREIGN KEY (company_id) REFERENCES company (company_id)
+    -> )ENGINE=INNODB;
+
+mysql> create table department (
+    -> dept_id int NOT NULL PRIMARY KEY,
+    -> dep_name VARCHAR(150) NOT NULL
+    -> );
+
+mysql> create table payroll (
+    -> emp_id int unsigned NOT NULL AUTO_INCREMENT,
+    -> basic_pay Double NOT NULL,
+    -> deductions Double NOT NULL,
+    -> taxable_pay Double NOT NULL,
+    -> tax Double NOT NULL,
+    -> net_pay Double NOT NULL,
+    -> FOREIGN KEY (emp_id) REFERENCES employee_details(emp_id)
+    -> );
+
+mysql> create table employee_department (
+    -> emp_id int unsigned NOT NULL AUTO_INCREMENT,
+    -> dept_id int NOT NULL,
+    -> FOREIGN KEY (emp_id) REFERENCES employee_details(emp_id),
+    -> FOREIGN KEY (dept_id) REFERENCES department(dept_id)
+    -> );
+
+mysql> show tables;
++--------------------------+
+| Tables_in_payrollservice |
++--------------------------+
+| company                  |
+| department               |
+| employee_department      |
+| employee_details         |
+| payroll                  |
++--------------------------+
+
+# UC12 Insert and Retrieve
+
+#12 Insert Operation
+
+mysql> insert into employee_details(name,company_id,phone_number,address,gender,
+	start) values ('Mark',1,'7959959695','mg road','M','2018-05-01'),
+    	-> ('Terissa',1,'9896656343','nehru road','F','2018-05-29');
+
+mysql> insert into payroll(emp_id, basic_pay,deductions,taxable_pay,tax,net_pay)
+   	 -> values (1,50000,1000,20000,2000,30000),
+    	-> (2,70000,2000,25000,5000,45000);
+
+mysql> insert into department (dept_id, dep_name) values
+    -> (101,'Sales'),
+    -> (202,'Marketing'),
+    -> (303,'HR');
+
+mysql> insert into employee_department (emp_id,dept_id) values
+    -> (1,101),
+    -> (2,101),
+    -> (2,102);
+
+
+Retireval Operation 
+
+mysql> select sum(p.net_pay), e.gender from employee_details e left join payroll
+ p on p.emp_id = e.emp_id group by e.gender;
+
++----------------+--------+
+| sum(p.net_pay) | gender |
++----------------+--------+
+|          30000 | M      |
+|          45000 | F      |
++----------------+--------+
+
+
+mysql> select avg(p.net_pay), e.gender from employee_details e left join payroll
+ p on p.emp_id = e.emp_id group by e.gender;
+
++----------------+--------+
+| avg(p.net_pay) | gender |
++----------------+--------+
+|          30000 | M      |
+|          45000 | F      |
++----------------+--------+
+
+
+mysql> select min(p.net_pay), e.gender from employee_details e left join payroll
+ p on p.emp_id = e.emp_id group by e.gender;
+
++----------------+--------+
+| min(p.net_pay) | gender |
++----------------+--------+
+|          30000 | M      |
+|          45000 | F      |
++----------------+--------+
+
+mysql> select max(p.net_pay), e.gender from employee_details e left join payroll
+ p on p.emp_id = e.emp_id group by e.gender;
+
++----------------+--------+
+| max(p.net_pay) | gender |
++----------------+--------+
+|          30000 | M      |
+|          45000 | F      |
++----------------+--------+
+
+mysql> select count(p.net_pay), e.gender from employee_details e left join payro
+ll p on p.emp_id = e.emp_id group by e.gender; 
+
++------------------+--------+
+| count(p.net_pay) | gender |
++------------------+--------+
+|                1 | M      |
+|                1 | F      |
++------------------+--------+
